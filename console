@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+"""Command-line entry point for the Simple Blockchain demo."""
+import sys
+from account import create_account, current_account
+from database import BlockChainDB, TransactionDB
+from miner import mine_once
+from transaction import Transaction
+
+
+def main(args):
+    command = args[0:2]
+    if command == ["account", "create"]: print(create_account())
+    elif command == ["account", "current"]: print(current_account())
+    elif command == ["miner", "start"]: print(mine_once().to_dict())
+    elif command == ["tx", "transfer"]: print(Transaction.transfer(args[2], args[3], args[4]).to_dict())
+    elif command == ["tx", "list"]: print(TransactionDB().read())
+    elif command == ["blockchain", "list"]: print(BlockChainDB().read())
+    else: print("commands: account create|current; miner start; tx transfer FROM TO AMOUNT|list; blockchain list")
+
+
+if __name__ == "__main__": main(sys.argv[1:])

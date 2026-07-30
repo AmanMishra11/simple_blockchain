@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>How Simple Blockchain Works</title>
+<body>
+  <h1>How Simple Blockchain works</h1>
+  <p>This is a teaching model of a proof-of-work blockchain.</p>
+
+  <h2>1. Create an account</h2>
+  <p>An account receives an address. Mining rewards and transaction outputs are assigned to addresses.</p>
+
+  <h2>2. Make a transaction</h2>
+  <p>The sender selects unspent transaction outputs (UTXOs), creates an output for the recipient, and returns any change to the sender.</p>
+  <pre>unspent outputs → transaction inputs → recipient output + change output</pre>
+
+  <h2>3. Mine a block</h2>
+  <p>The miner adds a reward transaction, groups the pending transaction IDs, and tries nonce values until the block hash starts with <code>0000</code>.</p>
+  <pre>parent hash + transactions + nonce → SHA-256 → 0000...</pre>
+
+  <h2>4. Link the chain</h2>
+  <p>Every new block stores the previous block's hash. Editing an earlier block changes its hash and breaks the link to the next one.</p>
+  <pre>[Block 0] ← parent hash — [Block 1] ← parent hash — [Block 2]</pre>
+
+  <h2>5. Share with nodes</h2>
+  <p>XML-RPC can send blocks and pending transactions to configured peers. This demonstrates propagation; it is not a production peer-to-peer network.</p>
+</body>
+</html>
