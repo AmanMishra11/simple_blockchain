@@ -33,6 +33,8 @@ class Transaction(Model):
     @classmethod
     def transfer(cls, sender, recipient, amount):
         amount = int(amount)
+        if amount <= 0:
+            raise ValueError("transfer amount must be a positive whole number")
         chosen, change = select_outputs(unspent_outputs(sender), amount)
         if chosen is None:
             raise ValueError("insufficient confirmed funds")

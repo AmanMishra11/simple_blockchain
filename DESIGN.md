@@ -18,7 +18,7 @@ Provide a readable, single-process demonstration of the core data flow behind a 
 
 ## Data model
 
-An output owns an `amount`, a `recipient`, and a unique `output_id`. A later transaction spends it by placing its identifier and amount in an input. To calculate an address balance, the system examines all confirmed outputs belonging to the address and removes every output referenced by a confirmed input.
+An output owns an `amount`, a `recipient`, and a unique `output_id`. A later transaction spends it by placing its identifier and amount in an input. To calculate an address balance, the system examines all confirmed outputs belonging to the address and removes every output referenced by a confirmed input. Transfers require a positive whole-number amount, which prevents this small demo from creating nonsensical zero or negative outputs.
 
 A transaction has a timestamp, input list, output list, and `tx_id`. Its identifier is a SHA-256 digest of those fields. Blocks contain a height, timestamp, parent hash, and a list of transaction identifiers. This intentionally avoids a Merkle tree so the link between a block and its included transactions remains obvious.
 
