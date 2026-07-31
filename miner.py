@@ -16,6 +16,12 @@ def mine_once():
     account = current_account()
     if not account: raise RuntimeError("create an account before mining")
     chain, pending = BlockChainDB().read(), UnTransactionDB().read()
+    # Validate the whole pending sequence, so two queued payments cannot spend
+    # the same confirmed output before either one is mined.
+    from ledger import validate_pending_transactions
+    errors = validate_pending_transactions(pending)
+    if errors:
+        raise ValueError("cannot mine invalid pending transactions: " + "; ".join(errors))
     reward = reward_transaction(account["address"])
     accepted = [reward.to_dict(), *pending]
     parent = chain[-1]["block_hash"] if chain else ""

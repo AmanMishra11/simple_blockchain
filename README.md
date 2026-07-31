@@ -12,6 +12,7 @@ From this directory, use Python 3.10 or later:
 python console account create
 python console miner start
 python console blockchain list
+python console ledger check
 ```
 
 After mining, transfer coins with:
@@ -22,3 +23,7 @@ python console miner start
 ```
 
 Read [DESIGN.md](DESIGN.md) for the complete architecture and open `blockchain-explained.html` in a browser for a small visual walkthrough.
+
+`ledger check` prints the confirmed balances and explains any broken block,
+transaction, or pending-payment rule it finds. It is a read-only inspection
+tool, intended for experimenting with the JSON ledger files.

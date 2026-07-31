@@ -10,6 +10,7 @@ Provide a readable, single-process demonstration of the core data flow behind a 
 | --- | --- |
 | `account.py` | Generates a toy wallet identity and address. |
 | `transaction.py` | Builds inputs and outputs, finds unspent outputs, and selects enough value for a payment. |
+| `ledger.py` | Replays UTXOs and reports invalid transactions, blocks, and pending double-spends. |
 | `block.py` | Defines a block header, calculates hashes, and searches for a valid nonce. |
 | `miner.py` | Adds the 20-coin reward, collects the mempool, mines, and records the result. |
 | `database.py` | Persists independent JSON lists for accounts, blocks, transactions, mempool, and peers. |
@@ -32,6 +33,16 @@ A transaction has a timestamp, input list, output list, and `tx_id`. Its identif
 6. The block and its confirmed transactions are written to disk; the mempool is cleared.
 
 The parent hash makes a block depend on its predecessor. Changing an older block would change its hash and invalidate each descendant's reference.
+
+## Ledger inspection
+
+`python console ledger check` is a read-only teaching aid. It reconstructs the
+UTXO set in transaction order, checks that each input references an available
+output of the same value, and checks that non-reward transactions preserve
+value. It also verifies block heights, parent links, proof of work, and that
+each stored confirmed transaction is referenced by a block. Pending transfers
+are replayed after the confirmed UTXOs, so a queued double-spend is reported
+before the miner writes it to a block.
 
 ## Networking
 
