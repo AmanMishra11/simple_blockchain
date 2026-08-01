@@ -13,6 +13,7 @@ python console account create
 python console miner start
 python console blockchain list
 python console ledger check
+python console blockchain summary
 ```
 
 After mining, transfer coins with:
@@ -27,3 +28,8 @@ Read [DESIGN.md](DESIGN.md) for the complete architecture and open `blockchain-e
 `ledger check` prints the confirmed balances and explains any broken block,
 transaction, or pending-payment rule it finds. It is a read-only inspection
 tool, intended for experimenting with the JSON ledger files.
+
+Use `python console address show ADDRESS` to follow one address's received,
+spent, and pending-reservation events. It also separates confirmed funds from
+funds that can immediately be used in another transfer. `blockchain summary`
+shows each block's transaction identifiers and output volume.

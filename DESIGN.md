@@ -11,6 +11,7 @@ Provide a readable, single-process demonstration of the core data flow behind a 
 | `account.py` | Generates a toy wallet identity and address. |
 | `transaction.py` | Builds inputs and outputs, finds unspent outputs, and selects enough value for a payment. |
 | `ledger.py` | Replays UTXOs and reports invalid transactions, blocks, and pending double-spends. |
+| `explorer.py` | Builds read-only block and address views from the JSON ledger. |
 | `block.py` | Defines a block header, calculates hashes, and searches for a valid nonce. |
 | `miner.py` | Adds the 20-coin reward, collects the mempool, mines, and records the result. |
 | `database.py` | Persists independent JSON lists for accounts, blocks, transactions, mempool, and peers. |
@@ -43,6 +44,16 @@ value. It also verifies block heights, parent links, proof of work, and that
 each stored confirmed transaction is referenced by a block. Pending transfers
 are replayed after the confirmed UTXOs, so a queued double-spend is reported
 before the miner writes it to a block.
+
+## Explorer views
+
+The `blockchain summary` command maps each block to its included transactions,
+reward/payment counts, and raw output volume. `address show ADDRESS` replays
+the same records as a short history: received outputs, spent outputs, pending
+incoming outputs, and outputs reserved by pending payments. It reports
+confirmed, reserved, and spendable balances separately. This keeps the
+important distinction between an owned UTXO and money that can be selected for
+the next transfer visible without introducing a database or web interface.
 
 ## Networking
 

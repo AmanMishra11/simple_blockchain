@@ -6,6 +6,7 @@ from database import BlockChainDB, TransactionDB
 from miner import mine_once
 from transaction import Transaction
 from ledger import ledger_report
+from explorer import address_summary, block_summary
 
 
 def main(args):
@@ -16,8 +17,10 @@ def main(args):
     elif command == ["tx", "transfer"]: print(Transaction.transfer(args[2], args[3], args[4]).to_dict())
     elif command == ["tx", "list"]: print(TransactionDB().read())
     elif command == ["blockchain", "list"]: print(BlockChainDB().read())
+    elif command == ["blockchain", "summary"]: print(block_summary())
     elif command == ["ledger", "check"]: print(ledger_report())
-    else: print("commands: account create|current; miner start; tx transfer FROM TO AMOUNT|list; blockchain list; ledger check")
+    elif command == ["address", "show"] and len(args) == 3: print(address_summary(args[2]))
+    else: print("commands: account create|current; miner start; tx transfer FROM TO AMOUNT|list; blockchain list|summary; ledger check; address show ADDRESS")
 
 
 if __name__ == "__main__": main(sys.argv[1:])
