@@ -3,165 +3,65 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Simple Blockchain Simulator</title>
+  <title>Simple Blockchain Python UI</title>
   <style>
     :root { color:#000; background:#fff; font-family:Arial, Helvetica, sans-serif; }
-    * { box-sizing:border-box; }
-    body { margin:0; background:#fff; color:#000; }
+    * { box-sizing:border-box; } body { margin:0; background:#fff; color:#000; }
     main { width:min(1100px, calc(100% - 32px)); margin:auto; padding:38px 0 60px; }
     header { border-bottom:3px solid #000; padding-bottom:22px; display:flex; gap:22px; justify-content:space-between; align-items:end; }
-    h1 { font-size:clamp(2rem, 5vw, 4rem); letter-spacing:-.07em; line-height:.95; margin:0; }
-    h1 span { display:block; font-size:.9rem; letter-spacing:.12em; text-transform:uppercase; margin-bottom:10px; }
+    h1 { font-size:clamp(2rem, 5vw, 4rem); letter-spacing:-.07em; line-height:.95; margin:0; } h1 span { display:block; font-size:.9rem; letter-spacing:.12em; text-transform:uppercase; margin-bottom:10px; }
     .tag, .label { border:1px solid #000; font-size:.73rem; font-weight:700; letter-spacing:.09em; padding:6px 8px; text-transform:uppercase; white-space:nowrap; }
-    .intro { font-size:1.08rem; line-height:1.6; max-width:720px; margin:23px 0; }
-    .grid { display:grid; grid-template-columns:1.1fr .9fr; gap:16px; }
-    .panel { border:2px solid #000; }
-    .panel h2 { border-bottom:1px solid #000; font-size:1rem; letter-spacing:.04em; margin:0; padding:13px 15px; text-transform:uppercase; }
-    .panel-body { padding:16px; }
-    .stats { display:grid; grid-template-columns:repeat(3, 1fr); border:2px solid #000; margin-bottom:16px; }
-    .stat { min-height:94px; padding:14px; border-right:1px solid #000; }
-    .stat:last-child { border:0; }
-    .stat b { display:block; font-size:.73rem; letter-spacing:.08em; text-transform:uppercase; }
-    .stat span { display:block; font-size:1.8rem; font-weight:800; margin-top:7px; }
-    .controls { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
-    button { appearance:none; background:#000; border:2px solid #000; color:#fff; cursor:pointer; font:700 .9rem Arial, sans-serif; padding:10px 13px; }
-    button:hover:not(:disabled) { background:#fff; color:#000; }
-    button.secondary { background:#fff; color:#000; }
-    button:disabled { cursor:wait; opacity:.45; }
-    input { border:2px solid #000; border-radius:0; color:#000; font:inherit; padding:9px; width:70px; }
-    .form-label { font-size:.84rem; font-weight:700; }
-    .message { border-top:1px solid #000; margin-top:16px; min-height:52px; padding:12px 0 0; font-family:ui-monospace, Consolas, monospace; font-size:.83rem; }
-    .chain { display:flex; gap:11px; overflow-x:auto; padding-bottom:6px; min-height:200px; }
-    .block { border:2px solid #000; flex:0 0 176px; padding:12px; position:relative; min-height:160px; }
-    .block::after { content:"->"; font-size:1.3rem; font-weight:800; position:absolute; right:-30px; top:65px; }
-    .block:last-child::after { display:none; }
-    .block.pending { border-style:dashed; }
-    .block b { display:block; text-transform:uppercase; font-size:.74rem; letter-spacing:.09em; }
-    .block code { display:block; font-size:.76rem; word-break:break-all; margin-top:17px; }
-    .block p { font-size:.83rem; line-height:1.35; margin:10px 0 0; }
-    .event-list { list-style:none; margin:0; padding:0; }
-    .event-list li { border-bottom:1px solid #000; font-family:ui-monospace, Consolas, monospace; font-size:.8rem; padding:10px 0; }
-    .event-list li:last-child { border:0; }
-    .how { border-top:3px solid #000; margin-top:30px; padding-top:18px; }
-    .how h2 { margin:0 0 7px; font-size:1.2rem; }
-    .how p { line-height:1.6; margin:0; max-width:840px; }
-    .note { border-left:4px solid #000; margin-top:16px; padding:4px 0 4px 13px; font-size:.88rem; }
+    .intro { font-size:1.08rem; line-height:1.6; max-width:790px; margin:23px 0; } .grid { display:grid; grid-template-columns:1.1fr .9fr; gap:16px; }
+    .panel { border:2px solid #000; } .panel h2 { border-bottom:1px solid #000; font-size:1rem; letter-spacing:.04em; margin:0; padding:13px 15px; text-transform:uppercase; } .panel-body { padding:16px; }
+    .stats { display:grid; grid-template-columns:repeat(3, 1fr); border:2px solid #000; margin-bottom:16px; } .stat { min-height:94px; padding:14px; border-right:1px solid #000; } .stat:last-child { border:0; }
+    .stat b { display:block; font-size:.73rem; letter-spacing:.08em; text-transform:uppercase; } .stat span { display:block; font-size:1.45rem; font-weight:800; margin-top:7px; overflow-wrap:anywhere; }
+    .controls { display:flex; flex-wrap:wrap; gap:8px; align-items:center; } button { appearance:none; background:#000; border:2px solid #000; color:#fff; cursor:pointer; font:700 .9rem Arial, sans-serif; padding:10px 13px; } button:hover:not(:disabled) { background:#fff; color:#000; } button.secondary { background:#fff; color:#000; } button:disabled { cursor:wait; opacity:.45; }
+    input { border:2px solid #000; color:#000; font:inherit; padding:9px; } #recipient { width:165px; } #amount { width:70px; } .form-label { font-size:.84rem; font-weight:700; }
+    .message { border-top:1px solid #000; margin-top:16px; min-height:52px; padding:12px 0 0; font-family:ui-monospace, Consolas, monospace; font-size:.83rem; } .error { font-weight:800; }
+    .chain { display:flex; gap:11px; overflow-x:auto; padding-bottom:6px; min-height:200px; } .block { border:2px solid #000; flex:0 0 184px; padding:12px; position:relative; min-height:160px; } .block::after { content:"->"; font-size:1.3rem; font-weight:800; position:absolute; right:-30px; top:65px; } .block:last-child::after { display:none; }
+    .block b { display:block; text-transform:uppercase; font-size:.74rem; letter-spacing:.09em; } .block code { display:block; font-size:.76rem; word-break:break-all; margin-top:17px; } .block p { font-size:.83rem; line-height:1.35; margin:10px 0 0; }
+    .event-list { list-style:none; margin:0; padding:0; } .event-list li { border-bottom:1px solid #000; font-family:ui-monospace, Consolas, monospace; font-size:.8rem; padding:10px 0; } .event-list li:last-child { border:0; }
+    .how { border-top:3px solid #000; margin-top:30px; padding-top:18px; } .how h2 { margin:0 0 7px; font-size:1.2rem; } .how p { line-height:1.6; margin:0; max-width:840px; } .note { border-left:4px solid #000; margin-top:16px; padding:4px 0 4px 13px; font-size:.88rem; }
     @media (max-width:750px) { header { align-items:start; flex-direction:column; } .grid { grid-template-columns:1fr; } .stats { grid-template-columns:1fr; } .stat { border-bottom:1px solid #000; border-right:0; min-height:auto; } }
   </style>
 </head>
 <body>
   <main>
-    <header>
-      <h1><span>Simple Blockchain Python</span>Blockchain simulator</h1>
-      <div class="tag">Runs only in this page</div>
-    </header>
-    <p class="intro">Use the controls to create a reward, send coins, mine a new block, and validate the chain. This is an interactive model of the project's UTXO flow; it does not touch the JSON files used by the Python application.</p>
-
-    <section class="stats" aria-label="Ledger balances">
-      <div class="stat"><b>Miner confirmed balance</b><span id="miner-balance">0</span></div>
-      <div class="stat"><b>Recipient confirmed balance</b><span id="recipient-balance">0</span></div>
-      <div class="stat"><b>Pending transactions</b><span id="pending-count">0</span></div>
-    </section>
-
+    <header><h1><span>Simple Blockchain Python</span>Blockchain application</h1><div class="tag">Python-backed localhost UI</div></header>
+    <p class="intro">This page is only the interface. Account creation, UTXO selection, transfers, mining, JSON persistence, and validation execute in the Python files in this project. Start it with <code>python webapp.py</code>, then open <code>http://127.0.0.1:8000</code>.</p>
+    <section class="stats" aria-label="Ledger balances"><div class="stat"><b>Current account</b><span id="account">None</span></div><div class="stat"><b>Confirmed balance</b><span id="balance">0 coins</span></div><div class="stat"><b>Pending transactions</b><span id="pending">0</span></div></section>
     <section class="grid">
-      <article class="panel">
-        <h2>Run the simulation</h2>
-        <div class="panel-body">
-          <div class="controls">
-            <button id="mine">Mine block + reward</button>
-            <label class="form-label" for="amount">Send</label><input id="amount" type="number" min="1" value="5" aria-label="Payment amount">
-            <button id="send" class="secondary">Queue payment</button>
-            <button id="validate" class="secondary">Validate chain</button>
-            <button id="reset" class="secondary">Reset</button>
-          </div>
-          <div id="message" class="message" role="status">Mine the first block to fund the miner wallet.</div>
-        </div>
-      </article>
-      <article class="panel">
-        <h2>Activity</h2>
-        <div class="panel-body"><ul id="events" class="event-list"><li>No activity yet.</li></ul></div>
-      </article>
+      <article class="panel"><h2>Use the Python ledger</h2><div class="panel-body"><div class="controls"><button id="account-button">Create / use account</button><button id="mine">Mine block</button><label class="form-label" for="recipient">Recipient</label><input id="recipient" value="recipient-address"><label class="form-label" for="amount">Amount</label><input id="amount" type="number" min="1" value="5"><button id="send" class="secondary">Queue transfer</button><button id="validate" class="secondary">Validate ledger</button></div><div id="message" class="message" role="status">Connecting to the Python application...</div></div></article>
+      <article class="panel"><h2>Ledger result</h2><div class="panel-body"><ul id="events" class="event-list"><li>Waiting for state...</li></ul></div></article>
     </section>
-
-    <section class="panel" style="margin-top:16px">
-      <h2>Chain state</h2>
-      <div id="chain" class="panel-body chain"><p>Blocks will appear here after mining.</p></div>
-    </section>
-
-    <section class="how">
-      <h2>What this UI is showing</h2>
-      <p>Each mined block contains a reward and any pending payment. A queued payment consumes a confirmed UTXO and creates a recipient output plus sender change. Every block header includes the previous block hash, so changing earlier data breaks the next link.</p>
-      <p class="note">For fast browser interaction this page mines hashes beginning with <code>00</code>. The Python project uses the more difficult <code>0000</code> prefix.</p>
-    </section>
+    <section class="panel" style="margin-top:16px"><h2>Confirmed Python blocks</h2><div id="chain" class="panel-body chain"><p>Loading blocks...</p></div></section>
+    <section class="how"><h2>Why this is the project blockchain</h2><p>The UI sends a small request to <code>webapp.py</code>. That server calls <code>account.py</code>, <code>transaction.py</code>, <code>miner.py</code>, <code>ledger.py</code>, and <code>explorer.py</code> directly. Refreshing the page reloads the same JSON-backed ledger that the console commands use.</p><p class="note">This server listens only on <code>127.0.0.1</code>. It is for local learning, not a production web service.</p></section>
   </main>
   <script>
-    const state = { chain: [], pending: [], utxos: [], events: [], nextId: 1 };
     const $ = id => document.getElementById(id);
-    const textHash = async text => {
-      const bytes = new TextEncoder().encode(text);
-      const digest = await crypto.subtle.digest("SHA-256", bytes);
-      return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
-    };
-    const id = prefix => `${prefix}-${state.nextId++}`;
-    const owned = address => state.utxos.filter(output => output.owner === address);
-    const balance = address => owned(address).reduce((total, output) => total + output.amount, 0);
-    const log = message => state.events.unshift(message);
-    const message = value => { $("message").textContent = value; };
-
-    function render() {
-      $("miner-balance").textContent = `${balance("miner")} coins`;
-      $("recipient-balance").textContent = `${balance("recipient")} coins`;
-      $("pending-count").textContent = state.pending.length;
-      $("events").innerHTML = state.events.length ? state.events.map(item => `<li>${item}</li>`).join("") : "<li>No activity yet.</li>";
-      const blocks = state.chain.map(block => `<div class="block"><b>Block ${block.height}</b><code>${block.hash.slice(0, 18)}...</code><p>parent: ${block.parentHash ? block.parentHash.slice(0, 8) + "..." : "none"}<br>${block.transactions.length} transaction(s)<br>nonce: ${block.nonce}</p></div>`);
-      if (state.pending.length) blocks.push(`<div class="block pending"><b>Mempool</b><code>unmined</code><p>${state.pending.length} payment(s) waiting</p></div>`);
-      $("chain").innerHTML = blocks.length ? blocks.join("") : "<p>Blocks will appear here after mining.</p>";
+    const message = (value, error=false) => { $("message").textContent = value; $("message").classList.toggle("error", error); };
+    function render(state) {
+      const account = state.account, ledger = state.ledger, balances = ledger.balances || {};
+      $("account").textContent = account ? account.address : "None";
+      $("balance").textContent = account ? `${balances[account.address] || 0} coins` : "0 coins";
+      $("pending").textContent = ledger.pending_transactions;
+      const lines = [...ledger.errors];
+      if (!lines.length) lines.push(ledger.valid ? "Ledger validation: valid" : "Ledger has no recorded errors.");
+      lines.push(`Blocks: ${ledger.blocks}; confirmed transactions: ${ledger.confirmed_transactions}.`);
+      $("events").innerHTML = lines.map(line => `<li>${line}</li>`).join("");
+      $("chain").innerHTML = state.blocks.length ? state.blocks.map(block => `<div class="block"><b>Block ${block.height}</b><code>${block.hash || "invalid or missing"}</code><p>parent: ${block.parent_hash ? block.parent_hash.slice(0, 12) + "..." : "none"}<br>${block.transactions} transaction(s)<br>${block.payments} payment(s)</p></div>`).join("") : "<p>No confirmed blocks yet. Create an account and mine a block.</p>";
     }
-
-    function queuePayment() {
-      const amount = Number($("amount").value);
-      if (!Number.isInteger(amount) || amount <= 0) return message("Enter a positive whole-number payment.");
-      const reserved = new Set(state.pending.flatMap(transaction => transaction.inputs));
-      const choices = owned("miner").filter(output => !reserved.has(output.id)).sort((a, b) => a.amount - b.amount);
-      let total = 0, selected = [];
-      for (const output of choices) { selected.push(output); total += output.amount; if (total >= amount) break; }
-      if (total < amount) return message("Not enough spendable miner UTXOs. Mine another reward first.");
-      const outputs = [{ id:id("out"), owner:"recipient", amount }];
-      if (total > amount) outputs.push({ id:id("out"), owner:"miner", amount:total - amount });
-      const transaction = { id:id("tx"), inputs:selected.map(output => output.id), outputs };
-      state.pending.push(transaction);
-      log(`queued ${transaction.id}: miner -> recipient (${amount} coins)`);
-      message(`Payment queued. Its ${selected.length} input(s) are reserved until mining.`); render();
+    async function request(path, payload) {
+      document.querySelectorAll("button").forEach(button => button.disabled = true);
+      try {
+        const response = await fetch(path, { method:path === "/api/state" ? "GET" : "POST", headers:{"Content-Type":"application/json"}, body:path === "/api/state" ? undefined : JSON.stringify(payload || {}) });
+        const result = await response.json(); if (result.state) render(result.state);
+        message(result.message || result.error || "Request completed.", !response.ok); return result;
+      } catch (error) { message("Cannot reach the Python server. Run: python webapp.py", true); }
+      finally { document.querySelectorAll("button").forEach(button => button.disabled = false); }
     }
-
-    async function mineBlock() {
-      $("mine").disabled = true; message("Mining a small browser proof of work...");
-      const reward = { id:id("reward"), inputs:[], outputs:[{ id:id("out"), owner:"miner", amount:20 }] };
-      const transactions = [reward, ...state.pending];
-      const height = state.chain.length, parentHash = height ? state.chain[height - 1].hash : "";
-      let nonce = 0, hash = "";
-      do { hash = await textHash(`${height}|${parentHash}|${JSON.stringify(transactions)}|${nonce++}`); } while (!hash.startsWith("00"));
-      for (const transaction of transactions) {
-        const spent = new Set(transaction.inputs); state.utxos = state.utxos.filter(output => !spent.has(output.id));
-        state.utxos.push(...transaction.outputs);
-      }
-      state.chain.push({ height, parentHash, transactions, nonce:nonce - 1, hash }); state.pending = [];
-      log(`mined block ${height}: ${hash.slice(0, 12)}...`); message(`Block ${height} is confirmed. Its hash begins with 00.`); $("mine").disabled = false; render();
-    }
-
-    async function validateChain() {
-      for (let index = 0; index < state.chain.length; index++) {
-        const block = state.chain[index];
-        const expectedParent = index ? state.chain[index - 1].hash : "";
-        const expectedHash = await textHash(`${block.height}|${block.parentHash}|${JSON.stringify(block.transactions)}|${block.nonce}`);
-        if (block.height !== index || block.parentHash !== expectedParent || block.hash !== expectedHash || !block.hash.startsWith("00")) return message(`Validation failed at block ${index}.`);
-      }
-      message(state.chain.length ? `Validation passed: ${state.chain.length} linked block(s) have valid browser proof of work.` : "Nothing to validate yet. Mine a block first.");
-    }
-
-    $("mine").addEventListener("click", mineBlock); $("send").addEventListener("click", queuePayment);
-    $("validate").addEventListener("click", validateChain); $("reset").addEventListener("click", () => { Object.assign(state, { chain:[], pending:[], utxos:[], events:[], nextId:1 }); message("Simulator reset. Mine the first block to fund the miner wallet."); render(); });
-    render();
+    $("account-button").addEventListener("click", () => request("/api/account")); $("mine").addEventListener("click", () => request("/api/mine"));
+    $("send").addEventListener("click", () => request("/api/transfer", {recipient:$("recipient").value, amount:$("amount").value})); $("validate").addEventListener("click", () => request("/api/validate")); request("/api/state");
   </script>
 </body>
 </html>

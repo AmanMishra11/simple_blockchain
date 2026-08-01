@@ -16,6 +16,7 @@ Provide a readable, single-process demonstration of the core data flow behind a 
 | `miner.py` | Adds the 20-coin reward, collects the mempool, mines, and records the result. |
 | `database.py` | Persists independent JSON lists for accounts, blocks, transactions, mempool, and peers. |
 | `rpc.py` / `node.py` | Exposes a deliberately minimal XML-RPC transport and peer list. |
+| `webapp.py` | Serves the local HTML UI and routes browser actions to the existing Python ledger modules. |
 | `console` | Gives the project a small command-line interface. |
 
 ## Data model
@@ -54,6 +55,15 @@ incoming outputs, and outputs reserved by pending payments. It reports
 confirmed, reserved, and spendable balances separately. This keeps the
 important distinction between an owned UTXO and money that can be selected for
 the next transfer visible without introducing a database or web interface.
+
+## Local web application
+
+`python webapp.py` starts a dependency-free server on `127.0.0.1:8000`.
+The browser page contains only presentation code and HTTP requests; it never
+creates blocks or balances itself. Its account, transfer, mining, and
+validation routes call the same modules used by `console`, then return a fresh
+ledger report and block summary. The UI therefore reflects the JSON ledger on
+disk and persists its actions exactly like the command-line demo.
 
 ## Networking
 

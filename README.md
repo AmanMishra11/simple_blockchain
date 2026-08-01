@@ -23,7 +23,13 @@ python console tx transfer SENDER_ADDRESS RECIPIENT_ADDRESS 5
 python console miner start
 ```
 
-Read [DESIGN.md](DESIGN.md) for the complete architecture and open `blockchain-explained.html` in a browser for an interactive visual walkthrough. Its white-and-black simulator lets you mine rewards, queue payments, confirm blocks, and validate parent-hash links without changing your saved ledger.
+Read [DESIGN.md](DESIGN.md) for the complete architecture. To use the local web application, run:
+
+```powershell
+python webapp.py
+```
+
+Then open `http://127.0.0.1:8000`. The white-and-black UI calls the same Python account, transaction, mining, validation, and JSON-persistence modules as the console; it is not a separate JavaScript ledger implementation.
 
 `ledger check` prints the confirmed balances and explains any broken block,
 transaction, or pending-payment rule it finds. It is a read-only inspection
