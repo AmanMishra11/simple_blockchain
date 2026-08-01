@@ -1,0 +1,24 @@
+[
+  {
+    "created_at": 1785562884,
+    "inputs": [
+      {
+        "output_id": "f81db47b1b6fcd569ba02e7b698c738117d5328987a9831bbce8965bfae1c475",
+        "amount": 15
+      }
+    ],
+    "outputs": [
+      {
+        "recipient": "00006f4a99340e1a9a3bb6fce52dafa3244789a82b5b8de1af91275fb4b9db18",
+        "amount": 5,
+        "output_id": "ba8d9335f184e6d3207d3c99f81a337126b474d730938b66900c1e9a1021775f"
+      },
+      {
+        "recipient": "L17427920f3e6bab35bedec980a387c67c",
+        "amount": 10,
+        "output_id": "a7a4cf5349dac66a610986da9624ad05013c76728780042a406be559c9b01c80"
+      }
+    ],
+    "tx_id": "8c604a4f29a2214b4e27dc14f1d737dbc405710268c19e9e7b23bf0096825d40"
+  }
+]
