@@ -1,27 +1,120 @@
 <!doctype html>
 <html lang="en">
-<meta charset="utf-8">
-<title>How Simple Blockchain Works</title>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simple Blockchain | Visual Lab</title>
+  <style>
+    :root { --ink:#e8eef8; --muted:#9cabc2; --panel:#131d31; --line:#293957; --cyan:#55d8ff; --violet:#a78bfa; --green:#62e3b0; --amber:#ffc768; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-width:320px; color:var(--ink); font:16px/1.55 Inter, ui-sans-serif, system-ui, sans-serif; background:radial-gradient(circle at 12% 5%, #20365c 0, transparent 30rem), #09101e; }
+    .shell { width:min(1120px, calc(100% - 32px)); margin:auto; padding:36px 0 56px; }
+    header { display:flex; justify-content:space-between; gap:20px; align-items:center; margin-bottom:34px; }
+    .eyebrow { color:var(--cyan); font-size:.76rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+    h1 { margin:5px 0 0; font-size:clamp(2rem, 5vw, 3.7rem); letter-spacing:-.055em; line-height:1.02; }
+    h1 span { color:var(--cyan); }
+    .tag { border:1px solid #386080; color:#b9e8f8; background:#102a40; border-radius:999px; padding:7px 11px; font-size:.82rem; white-space:nowrap; }
+    .intro { color:var(--muted); max-width:680px; margin:0 0 28px; font-size:1.07rem; }
+    .progress { display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin:24px 0 22px; }
+    .progress button { appearance:none; cursor:pointer; border:1px solid var(--line); background:#10192a; color:var(--muted); border-radius:12px; padding:11px 8px; text-align:left; transition:.2s; }
+    .progress button:hover { border-color:#5873a0; color:var(--ink); }
+    .progress button.active { background:linear-gradient(135deg, #183e59, #202650); border-color:var(--cyan); color:#fff; box-shadow:0 0 0 3px #55d8ff1a; }
+    .progress b { display:block; font-size:.74rem; color:var(--cyan); margin-bottom:2px; }
+    .lab { display:grid; grid-template-columns:1.12fr .88fr; gap:18px; }
+    .panel { background:linear-gradient(150deg, #16233a, var(--panel)); border:1px solid var(--line); border-radius:20px; box-shadow:0 18px 50px #0004; overflow:hidden; }
+    .panel-head { padding:18px 21px 13px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); }
+    .panel h2 { margin:0; font-size:1rem; letter-spacing:.01em; }
+    .panel small { color:var(--muted); }
+    .scene { min-height:380px; padding:22px; display:flex; flex-direction:column; justify-content:center; }
+    .stage-label { display:inline-flex; align-items:center; gap:7px; color:var(--cyan); font-size:.8rem; font-weight:750; text-transform:uppercase; letter-spacing:.1em; }
+    .dot { width:8px; height:8px; background:var(--green); border-radius:50%; box-shadow:0 0 12px var(--green); }
+    .scene h3 { margin:12px 0 6px; font-size:1.75rem; letter-spacing:-.035em; }
+    .scene p { margin:0; color:var(--muted); max-width:540px; }
+    .diagram { margin-top:25px; display:flex; align-items:stretch; gap:9px; min-height:130px; }
+    .node-card { flex:1; min-width:0; border:1px solid #3a4f72; border-radius:14px; background:#0d1728; padding:14px; position:relative; }
+    .node-card.highlight { border-color:var(--cyan); background:#0d2639; box-shadow:0 0 20px #55d8ff22; }
+    .node-card em { display:block; color:var(--cyan); font-size:.72rem; font-style:normal; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+    .node-card strong { display:block; margin-top:5px; font-size:.94rem; word-break:break-word; }
+    .node-card span { display:block; font: .75rem ui-monospace, SFMono-Regular, Consolas, monospace; color:var(--muted); margin-top:8px; }
+    .arrow { color:var(--cyan); align-self:center; font-size:1.35rem; }
+    .chain { padding:20px; display:flex; gap:10px; overflow:auto; min-height:176px; }
+    .block { flex:0 0 148px; border:1px solid #3d5274; border-radius:13px; background:#0b1423; padding:12px; position:relative; }
+    .block::after { content:"→"; color:#54709b; position:absolute; right:-18px; top:57px; font-size:1.25rem; }
+    .block:last-child::after { display:none; }
+    .block.pending { border-style:dashed; border-color:#765fae; background:#15112a; }
+    .block b { display:block; font-size:.75rem; color:var(--violet); text-transform:uppercase; letter-spacing:.08em; }
+    .block code { display:block; color:var(--green); margin-top:15px; font-size:.78rem; }
+    .block p { color:var(--muted); margin:6px 0 0; font-size:.75rem; }
+    .controls { margin-top:18px; display:flex; gap:10px; align-items:center; }
+    button.action { cursor:pointer; border:0; border-radius:10px; padding:11px 15px; background:var(--cyan); color:#062030; font-weight:800; font:inherit; transition:transform .15s, filter .15s; }
+    button.action:hover { transform:translateY(-1px); filter:brightness(1.08); }
+    button.ghost { cursor:pointer; border:1px solid #405777; border-radius:10px; padding:10px 13px; background:transparent; color:var(--muted); font:inherit; }
+    .hint { color:var(--muted); font-size:.84rem; }
+    .code { margin:0; border-top:1px solid var(--line); background:#0b1423; color:#b9cce7; padding:16px 20px; overflow:auto; font:.8rem/1.65 ui-monospace, SFMono-Regular, Consolas, monospace; white-space:pre-wrap; }
+    .legend { display:flex; flex-wrap:wrap; gap:13px; margin-top:24px; color:var(--muted); font-size:.85rem; }
+    .legend i { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; }
+    .notice { margin-top:28px; padding:14px 16px; border-left:3px solid var(--amber); background:#2a210f; color:#f5dba5; border-radius:0 10px 10px 0; font-size:.9rem; }
+    @media (max-width:760px) { header { align-items:flex-start; flex-direction:column; } .lab { grid-template-columns:1fr; } .progress { grid-template-columns:repeat(2, 1fr); } .scene { min-height:340px; } }
+  </style>
+</head>
 <body>
-  <h1>How Simple Blockchain works</h1>
-  <p>This is a teaching model of a proof-of-work blockchain.</p>
+  <main class="shell">
+    <header>
+      <div><div class="eyebrow">Simple Blockchain Python</div><h1>Follow a coin through the <span>chain.</span></h1></div>
+      <div class="tag">Offline teaching simulator</div>
+    </header>
+    <p class="intro">Step through the same concepts used by the command-line demo. Nothing is sent over the network or written to your files—this page is a safe visual model.</p>
 
-  <h2>1. Create an account</h2>
-  <p>An account receives an address. Mining rewards and transaction outputs are assigned to addresses.</p>
+    <nav class="progress" aria-label="Blockchain walkthrough">
+      <button class="active" data-step="0"><b>01</b>Fund a wallet</button>
+      <button data-step="1"><b>02</b>Create payment</button>
+      <button data-step="2"><b>03</b>Mine a block</button>
+      <button data-step="3"><b>04</b>Verify the link</button>
+    </nav>
 
-  <h2>2. Make a transaction</h2>
-  <p>The sender selects unspent transaction outputs (UTXOs), creates an output for the recipient, and returns any change to the sender.</p>
-  <pre>unspent outputs → transaction inputs → recipient output + change output</pre>
-
-  <h2>3. Mine a block</h2>
-  <p>The miner adds a reward transaction, groups the pending transaction IDs, and tries nonce values until the block hash starts with <code>0000</code>.</p>
-  <pre>parent hash + transactions + nonce → SHA-256 → 0000...</pre>
-
-  <h2>4. Link the chain</h2>
-  <p>Every new block stores the previous block's hash. Editing an earlier block changes its hash and breaks the link to the next one.</p>
-  <pre>[Block 0] ← parent hash — [Block 1] ← parent hash — [Block 2]</pre>
-
-  <h2>5. Share with nodes</h2>
-  <p>XML-RPC can send blocks and pending transactions to configured peers. This demonstrates propagation; it is not a production peer-to-peer network.</p>
+    <section class="lab">
+      <article class="panel">
+        <div class="panel-head"><h2 id="step-title">Wallet receives a reward</h2><small id="step-count">Step 1 of 4</small></div>
+        <div class="scene">
+          <div class="stage-label"><span class="dot"></span><span id="stage-label">Confirmed UTXO</span></div>
+          <h3 id="scene-heading">A block reward creates spendable value.</h3>
+          <p id="scene-copy">Mining adds one 20-coin output to the miner's address. That unspent output (UTXO) is the coin the wallet can later use.</p>
+          <div class="diagram" id="diagram"></div>
+          <div class="controls"><button class="action" id="next">Create a payment</button><button class="ghost" id="reset">Reset</button><span class="hint" id="hint">Click a stage above at any time.</span></div>
+        </div>
+        <pre class="code" id="code"></pre>
+      </article>
+      <aside class="panel">
+        <div class="panel-head"><h2>Chain state</h2><small>changes with each step</small></div>
+        <div class="chain" id="chain"></div>
+        <div class="legend"><span><i style="background:#62e3b0"></i>valid hash</span><span><i style="background:#a78bfa"></i>pending</span><span><i style="background:#55d8ff"></i>selected item</span></div>
+      </aside>
+    </section>
+    <p class="notice">This visualises the project's simplified rules. Real blockchains also need signatures, peer consensus, and stronger validation.</p>
+  </main>
+  <script>
+    const steps = [
+      { title:"Wallet receives a reward", label:"Confirmed UTXO", heading:"A block reward creates spendable value.", copy:"Mining adds one 20-coin output to the miner's address. That unspent output (UTXO) is the coin the wallet can later use.", next:"Create a payment", cards:[['Miner wallet','UTXO #a1','20 coins',true],['Pending pool','empty','',false]], code:'reward = Transaction([], [Output(miner_address, 20)])\n# UTXO #a1 belongs to the miner' },
+      { title:"A payment enters the mempool", label:"Pending transaction", heading:"The wallet selects an unspent output.", copy:"The 20-coin UTXO becomes an input. The transaction creates 5 coins for the recipient and returns 15 coins of change to the sender.", next:"Mine the pending payment", cards:[['Input','UTXO #a1','20 coins',true],['Transaction','5 to recipient','15 change',true],['Mempool','waiting to mine','',false]], code:'inputs  = [Input("UTXO #a1", 20)]\noutputs = [Output("recipient", 5), Output("miner", 15)]\nUnTransactionDB().append(transaction)' },
+      { title:"Proof of work seals a block", label:"Mining", heading:"A nonce makes the header hash begin with 0000.", copy:"The miner repeatedly changes a nonce. When the hash meets the fixed teaching difficulty, the reward and pending payment are stored in Block 1.", next:"Verify the chain link", cards:[['Block header','nonce: 8,214','hash: 0000a8…',true],['Transactions','reward + payment','confirmed',true]], code:'while not block.hash_for(nonce).startswith("0000"):\n    nonce += 1\nblock.nonce = nonce\nblock.block_hash = block.hash_for(nonce)' },
+      { title:"Each block protects its history", label:"Chain validation", heading:"The new block remembers the previous hash.", copy:"Block 1 points at Block 0. Editing an older block changes its hash, so the next block's parent link no longer matches and ledger validation reports the error.", next:"Start again", cards:[['Block 0 hash','00004c…','parent: none',true],['Block 1 parent','00004c…','link verified',true]], code:'block_1.parent_hash == block_0.block_hash\nblock_1.valid()  # proof of work is still valid\nvalidate_chain() # checks links, hashes, and transactions' }
+    ];
+    let current = 0;
+    const $ = id => document.getElementById(id);
+    function render() {
+      const step = steps[current];
+      document.querySelectorAll('[data-step]').forEach(button => button.classList.toggle('active', Number(button.dataset.step) === current));
+      $('step-title').textContent = step.title; $('step-count').textContent = `Step ${current + 1} of 4`;
+      $('stage-label').textContent = step.label; $('scene-heading').textContent = step.heading; $('scene-copy').textContent = step.copy;
+      $('next').textContent = step.next; $('code').textContent = step.code;
+      $('diagram').innerHTML = step.cards.map((card, index) => `${index ? '<div class="arrow">→</div>' : ''}<div class="node-card ${card[3] ? 'highlight' : ''}"><em>${card[0]}</em><strong>${card[1]}</strong><span>${card[2]}</span></div>`).join('');
+      const blocks = current < 2 ? [['Block 0','00004c…','20 coin reward'], ['Mempool','pending','5 coin payment']] : [['Block 0','00004c…','20 coin reward'], ['Block 1','0000a8…','reward + payment'], ['Mempool','empty','']];
+      $('chain').innerHTML = blocks.map(block => `<div class="block ${block[0] === 'Mempool' && block[1] !== 'empty' ? 'pending' : ''}"><b>${block[0]}</b><code>${block[1]}</code><p>${block[2]}</p></div>`).join('');
+    }
+    document.querySelectorAll('[data-step]').forEach(button => button.addEventListener('click', () => { current = Number(button.dataset.step); render(); }));
+    $('next').addEventListener('click', () => { current = (current + 1) % steps.length; render(); });
+    $('reset').addEventListener('click', () => { current = 0; render(); });
+    render();
+  </script>
 </body>
 </html>

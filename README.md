@@ -23,7 +23,7 @@ python console tx transfer SENDER_ADDRESS RECIPIENT_ADDRESS 5
 python console miner start
 ```
 
-Read [DESIGN.md](DESIGN.md) for the complete architecture and open `blockchain-explained.html` in a browser for a small visual walkthrough.
+Read [DESIGN.md](DESIGN.md) for the complete architecture and open `blockchain-explained.html` in a browser for an interactive visual walkthrough. It is an offline simulator: use its four stages to see rewards, UTXO spending, mining, and block links without changing your saved ledger.
 
 `ledger check` prints the confirmed balances and explains any broken block,
 transaction, or pending-payment rule it finds. It is a read-only inspection
