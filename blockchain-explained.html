@@ -1,45 +1,357 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Simple Blockchain Python UI</title>
   <style>
-    :root { color:#000; background:#fff; font-family:Arial, Helvetica, sans-serif; }
-    * { box-sizing:border-box; } body { margin:0; background:#fff; color:#000; }
-    main { width:min(1100px, calc(100% - 32px)); margin:auto; padding:38px 0 60px; }
-    header { border-bottom:3px solid #000; padding-bottom:22px; display:flex; gap:22px; justify-content:space-between; align-items:end; }
-    h1 { font-size:clamp(2rem, 5vw, 4rem); letter-spacing:-.07em; line-height:.95; margin:0; } h1 span { display:block; font-size:.9rem; letter-spacing:.12em; text-transform:uppercase; margin-bottom:10px; }
-    .tag, .label { border:1px solid #000; font-size:.73rem; font-weight:700; letter-spacing:.09em; padding:6px 8px; text-transform:uppercase; white-space:nowrap; }
-    .intro { font-size:1.08rem; line-height:1.6; max-width:790px; margin:23px 0; } .grid { display:grid; grid-template-columns:1.1fr .9fr; gap:16px; }
-    .panel { border:2px solid #000; } .panel h2 { border-bottom:1px solid #000; font-size:1rem; letter-spacing:.04em; margin:0; padding:13px 15px; text-transform:uppercase; } .panel-body { padding:16px; }
-    .stats { display:grid; grid-template-columns:repeat(3, 1fr); border:2px solid #000; margin-bottom:16px; } .stat { min-height:94px; padding:14px; border-right:1px solid #000; } .stat:last-child { border:0; }
-    .stat b { display:block; font-size:.73rem; letter-spacing:.08em; text-transform:uppercase; } .stat span { display:block; font-size:1.45rem; font-weight:800; margin-top:7px; overflow-wrap:anywhere; }
-    .controls { display:flex; flex-wrap:wrap; gap:8px; align-items:center; } button { appearance:none; background:#000; border:2px solid #000; color:#fff; cursor:pointer; font:700 .9rem Arial, sans-serif; padding:10px 13px; } button:hover:not(:disabled) { background:#fff; color:#000; } button.secondary { background:#fff; color:#000; } button:disabled { cursor:wait; opacity:.45; }
-    input { border:2px solid #000; color:#000; font:inherit; padding:9px; } #recipient { width:165px; } #amount { width:70px; } .form-label { font-size:.84rem; font-weight:700; }
-    .message { border-top:1px solid #000; margin-top:16px; min-height:52px; padding:12px 0 0; font-family:ui-monospace, Consolas, monospace; font-size:.83rem; } .error { font-weight:800; }
-    .chain { display:flex; gap:11px; overflow-x:auto; padding-bottom:6px; min-height:200px; } .block { border:2px solid #000; flex:0 0 184px; padding:12px; position:relative; min-height:160px; } .block::after { content:"->"; font-size:1.3rem; font-weight:800; position:absolute; right:-30px; top:65px; } .block:last-child::after { display:none; }
-    .block b { display:block; text-transform:uppercase; font-size:.74rem; letter-spacing:.09em; } .block code { display:block; font-size:.76rem; word-break:break-all; margin-top:17px; } .block p { font-size:.83rem; line-height:1.35; margin:10px 0 0; }
-    .event-list { list-style:none; margin:0; padding:0; } .event-list li { border-bottom:1px solid #000; font-family:ui-monospace, Consolas, monospace; font-size:.8rem; padding:10px 0; } .event-list li:last-child { border:0; }
-    .how { border-top:3px solid #000; margin-top:30px; padding-top:18px; } .how h2 { margin:0 0 7px; font-size:1.2rem; } .how p { line-height:1.6; margin:0; max-width:840px; } .note { border-left:4px solid #000; margin-top:16px; padding:4px 0 4px 13px; font-size:.88rem; }
-    @media (max-width:750px) { header { align-items:start; flex-direction:column; } .grid { grid-template-columns:1fr; } .stats { grid-template-columns:1fr; } .stat { border-bottom:1px solid #000; border-right:0; min-height:auto; } }
+    :root {
+      color: #000;
+      background: #fff;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #fff;
+      color: #000;
+    }
+
+    main {
+      width: min(1100px, calc(100% - 32px));
+      margin: auto;
+      padding: 38px 0 60px;
+    }
+
+    header {
+      border-bottom: 3px solid #000;
+      padding-bottom: 22px;
+      display: flex;
+      gap: 22px;
+      justify-content: space-between;
+      align-items: end;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 4rem);
+      letter-spacing: -.07em;
+      line-height: .95;
+      margin: 0;
+    }
+
+    h1 span {
+      display: block;
+      font-size: .9rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .tag,
+    .label {
+      border: 1px solid #000;
+      font-size: .73rem;
+      font-weight: 700;
+      letter-spacing: .09em;
+      padding: 6px 8px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .intro {
+      font-size: 1.08rem;
+      line-height: 1.6;
+      max-width: 790px;
+      margin: 23px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 16px;
+    }
+
+    .panel {
+      border: 2px solid #000;
+    }
+
+    .panel h2 {
+      border-bottom: 1px solid #000;
+      font-size: 1rem;
+      letter-spacing: .04em;
+      margin: 0;
+      padding: 13px 15px;
+      text-transform: uppercase;
+    }
+
+    .panel-body {
+      padding: 16px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 2px solid #000;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      min-height: 94px;
+      padding: 14px;
+      border-right: 1px solid #000;
+    }
+
+    .stat:last-child {
+      border: 0;
+    }
+
+    .stat b {
+      display: block;
+      font-size: .73rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .stat span {
+      display: block;
+      font-size: 1.45rem;
+      font-weight: 800;
+      margin-top: 7px;
+      overflow-wrap: anywhere;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button {
+      appearance: none;
+      background: #000;
+      border: 2px solid #000;
+      color: #fff;
+      cursor: pointer;
+      font: 700 .9rem Arial, sans-serif;
+      padding: 10px 13px;
+    }
+
+    button:hover:not(:disabled) {
+      background: #fff;
+      color: #000;
+    }
+
+    button.secondary {
+      background: #fff;
+      color: #000;
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: .45;
+    }
+
+    input {
+      border: 2px solid #000;
+      color: #000;
+      font: inherit;
+      padding: 9px;
+    }
+
+    #recipient {
+      width: 165px;
+    }
+
+    #amount {
+      width: 70px;
+    }
+
+    .form-label {
+      font-size: .84rem;
+      font-weight: 700;
+    }
+
+    .message {
+      border-top: 1px solid #000;
+      margin-top: 16px;
+      min-height: 52px;
+      padding: 12px 0 0;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: .83rem;
+    }
+
+    .error {
+      font-weight: 800;
+    }
+
+    .chain {
+      display: flex;
+      gap: 11px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      min-height: 200px;
+    }
+
+    .block {
+      border: 2px solid #000;
+      flex: 0 0 184px;
+      padding: 12px;
+      position: relative;
+      min-height: 160px;
+    }
+
+    .block::after {
+      content: "->";
+      font-size: 1.3rem;
+      font-weight: 800;
+      position: absolute;
+      right: -30px;
+      top: 65px;
+    }
+
+    .block:last-child::after {
+      display: none;
+    }
+
+    .block b {
+      display: block;
+      text-transform: uppercase;
+      font-size: .74rem;
+      letter-spacing: .09em;
+    }
+
+    .block code {
+      display: block;
+      font-size: .76rem;
+      word-break: break-all;
+      margin-top: 17px;
+    }
+
+    .block p {
+      font-size: .83rem;
+      line-height: 1.35;
+      margin: 10px 0 0;
+    }
+
+    .event-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .event-list li {
+      border-bottom: 1px solid #000;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: .8rem;
+      padding: 10px 0;
+    }
+
+    .event-list li:last-child {
+      border: 0;
+    }
+
+    .how {
+      border-top: 3px solid #000;
+      margin-top: 30px;
+      padding-top: 18px;
+    }
+
+    .how h2 {
+      margin: 0 0 7px;
+      font-size: 1.2rem;
+    }
+
+    .how p {
+      line-height: 1.6;
+      margin: 0;
+      max-width: 840px;
+    }
+
+    .note {
+      border-left: 4px solid #000;
+      margin-top: 16px;
+      padding: 4px 0 4px 13px;
+      font-size: .88rem;
+    }
+
+    @media (max-width:750px) {
+      header {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .stat {
+        border-bottom: 1px solid #000;
+        border-right: 0;
+        min-height: auto;
+      }
+    }
   </style>
 </head>
+
 <body>
   <main>
-    <header><h1><span>Simple Blockchain Python</span>Blockchain application</h1><div class="tag">Python-backed localhost UI</div></header>
-    <p class="intro">This page is only the interface. Account creation, UTXO selection, transfers, mining, JSON persistence, and validation execute in the Python files in this project. Start it with <code>python webapp.py</code>, then open <code>http://127.0.0.1:8000</code>.</p>
-    <section class="stats" aria-label="Ledger balances"><div class="stat"><b>Current account</b><span id="account">None</span></div><div class="stat"><b>Confirmed balance</b><span id="balance">0 coins</span></div><div class="stat"><b>Pending transactions</b><span id="pending">0</span></div></section>
-    <section class="grid">
-      <article class="panel"><h2>Use the Python ledger</h2><div class="panel-body"><div class="controls"><button id="account-button">Create / use account</button><button id="mine">Mine block</button><label class="form-label" for="recipient">Recipient</label><input id="recipient" value="recipient-address"><label class="form-label" for="amount">Amount</label><input id="amount" type="number" min="1" value="5"><button id="send" class="secondary">Queue transfer</button><button id="validate" class="secondary">Validate ledger</button></div><div id="message" class="message" role="status">Connecting to the Python application...</div></div></article>
-      <article class="panel"><h2>Ledger result</h2><div class="panel-body"><ul id="events" class="event-list"><li>Waiting for state...</li></ul></div></article>
+    <header>
+      <h1><span>Blockchain Implementation</span>Blockchain application</h1>
+      <div class="tag"></div>
+    </header>
+
+    <section class="stats" aria-label="Ledger balances">
+      <div class="stat"><b>Current account</b><span id="account">None</span></div>
+      <div class="stat"><b>Confirmed balance</b><span id="balance">0 coins</span></div>
+      <div class="stat"><b>Pending transactions</b><span id="pending">0</span></div>
     </section>
-    <section class="panel" style="margin-top:16px"><h2>Confirmed Python blocks</h2><div id="chain" class="panel-body chain"><p>Loading blocks...</p></div></section>
-    <section class="how"><h2>Why this is the project blockchain</h2><p>The UI sends a small request to <code>webapp.py</code>. That server calls <code>account.py</code>, <code>transaction.py</code>, <code>miner.py</code>, <code>ledger.py</code>, and <code>explorer.py</code> directly. Refreshing the page reloads the same JSON-backed ledger that the console commands use.</p><p class="note">This server listens only on <code>127.0.0.1</code>. It is for local learning, not a production web service.</p></section>
+    <section class="grid">
+      <article class="panel">
+        <h2>Use the Python ledger</h2>
+        <div class="panel-body">
+          <div class="controls"><button id="account-button">Create / use account</button><button id="mine">Mine
+              block</button><label class="form-label" for="recipient">Recipient</label><input id="recipient"
+              value="recipient-address"><label class="form-label" for="amount">Amount</label><input id="amount"
+              type="number" min="1" value="5"><button id="send" class="secondary">Queue transfer</button><button
+              id="validate" class="secondary">Validate ledger</button></div>
+          <div id="message" class="message" role="status">Connecting to the Python application...</div>
+        </div>
+      </article>
+      <article class="panel">
+        <h2>Ledger result</h2>
+        <div class="panel-body">
+          <ul id="events" class="event-list">
+            <li>Waiting for state...</li>
+          </ul>
+        </div>
+      </article>
+    </section>
+    <section class="panel" style="margin-top:16px">
+      <h2>Confirmed Python blocks</h2>
+      <div id="chain" class="panel-body chain">
+        <p>Loading blocks...</p>
+      </div>
+    </section>
+    <section class="how">
+      <h2>Why this is the project blockchain</h2>
+      <p>The UI sends a small request to <code>webapp.py</code>. That server calls <code>account.py</code>,
+        <code>transaction.py</code>, <code>miner.py</code>, <code>ledger.py</code>, and <code>explorer.py</code>
+        directly. Refreshing the page reloads the same JSON-backed ledger that the console commands use.</p>
+    </section>
   </main>
   <script>
     const $ = id => document.getElementById(id);
-    const message = (value, error=false) => { $("message").textContent = value; $("message").classList.toggle("error", error); };
+    const message = (value, error = false) => { $("message").textContent = value; $("message").classList.toggle("error", error); };
     function render(state) {
       const account = state.account, ledger = state.ledger, balances = ledger.balances || {};
       $("account").textContent = account ? account.address : "None";
@@ -54,14 +366,15 @@
     async function request(path, payload) {
       document.querySelectorAll("button").forEach(button => button.disabled = true);
       try {
-        const response = await fetch(path, { method:path === "/api/state" ? "GET" : "POST", headers:{"Content-Type":"application/json"}, body:path === "/api/state" ? undefined : JSON.stringify(payload || {}) });
+        const response = await fetch(path, { method: path === "/api/state" ? "GET" : "POST", headers: { "Content-Type": "application/json" }, body: path === "/api/state" ? undefined : JSON.stringify(payload || {}) });
         const result = await response.json(); if (result.state) render(result.state);
         message(result.message || result.error || "Request completed.", !response.ok); return result;
       } catch (error) { message("Cannot reach the Python server. Run: python webapp.py", true); }
       finally { document.querySelectorAll("button").forEach(button => button.disabled = false); }
     }
     $("account-button").addEventListener("click", () => request("/api/account")); $("mine").addEventListener("click", () => request("/api/mine"));
-    $("send").addEventListener("click", () => request("/api/transfer", {recipient:$("recipient").value, amount:$("amount").value})); $("validate").addEventListener("click", () => request("/api/validate")); request("/api/state");
+    $("send").addEventListener("click", () => request("/api/transfer", { recipient: $("recipient").value, amount: $("amount").value })); $("validate").addEventListener("click", () => request("/api/validate")); request("/api/state");
   </script>
 </body>
+
 </html>
