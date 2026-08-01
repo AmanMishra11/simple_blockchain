@@ -35,7 +35,7 @@ class Transaction(Model):
         amount = int(amount)
         if amount <= 0:
             raise ValueError("transfer amount must be a positive whole number")
-        chosen, change = select_outputs(unspent_outputs(sender), amount)
+        chosen, change = select_outputs(spendable_outputs(sender), amount)
         if chosen is None:
             raise ValueError("insufficient confirmed funds")
         outputs = [Output(recipient, amount)]
@@ -51,6 +51,22 @@ def unspent_outputs(address):
     spent = {item["output_id"] for tx in records for item in tx["inputs"]}
     return [output for tx in records for output in tx["outputs"]
             if output["recipient"] == address and output["output_id"] not in spent]
+
+
+def spendable_outputs(address):
+    """Return confirmed outputs that are not already reserved by the mempool.
+
+    Pending transfers are not confirmed funds, but their inputs should be held
+    back while a user is composing the next payment.  The miner still validates
+    its complete pending sequence before committing a block.
+    """
+    pending_spent = {
+        item["output_id"]
+        for transaction in UnTransactionDB().read()
+        for item in transaction.get("inputs", [])
+        if isinstance(item, dict) and "output_id" in item
+    }
+    return [output for output in unspent_outputs(address) if output["output_id"] not in pending_spent]
 
 
 def select_outputs(outputs, target):
