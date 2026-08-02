@@ -11,6 +11,7 @@ import hashlib
 from block import POW_PREFIX
 from database import BlockChainDB, TransactionDB, UnTransactionDB
 from miner import BLOCK_REWARD
+from transaction import digest
 
 
 def _error(errors, message):
@@ -36,6 +37,10 @@ def apply_transaction(transaction, available, allow_reward=False):
     inputs, outputs = transaction.get("inputs"), transaction.get("outputs")
     if not isinstance(inputs, list) or not isinstance(outputs, list) or not outputs:
         return [f"transaction {tx_id}: inputs and a non-empty outputs list are required"]
+    if not isinstance(transaction.get("created_at"), int):
+        _error(errors, f"transaction {tx_id}: created_at must be an integer timestamp")
+    elif tx_id != digest((transaction["created_at"], inputs, outputs)):
+        _error(errors, f"transaction {tx_id}: identifier does not match its contents")
 
     output_total = 0
     new_outputs = []

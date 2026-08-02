@@ -23,7 +23,7 @@ Provide a readable, single-process demonstration of the core data flow behind a 
 
 An output owns an `amount`, a `recipient`, and a unique `output_id`. A later transaction spends it by placing its identifier and amount in an input. To calculate an address balance, the system examines all confirmed outputs belonging to the address and removes every output referenced by a confirmed input. Transfers require a positive whole-number amount, which prevents this small demo from creating nonsensical zero or negative outputs.
 
-A transaction has a timestamp, input list, output list, and `tx_id`. Its identifier is a SHA-256 digest of those fields. When building a new transfer, outputs already referenced by a pending transfer are temporarily reserved, so an obvious double-spend is rejected immediately rather than waiting for mining. Blocks contain a height, timestamp, parent hash, and a list of transaction identifiers. This intentionally avoids a Merkle tree so the link between a block and its included transactions remains obvious.
+A transaction has a timestamp, input list, output list, and `tx_id`. Its identifier is a SHA-256 digest of those fields, and ledger inspection recalculates it so an edited stored transaction is reported. When building a new transfer, outputs already referenced by a pending transfer are temporarily reserved, so an obvious double-spend is rejected immediately rather than waiting for mining. Blocks contain a height, timestamp, parent hash, and a list of transaction identifiers. This intentionally avoids a Merkle tree so the link between a block and its included transactions remains obvious.
 
 ## Mining sequence
 
@@ -39,9 +39,9 @@ The parent hash makes a block depend on its predecessor. Changing an older block
 ## Ledger inspection
 
 `python console ledger check` is a read-only teaching aid. It reconstructs the
-UTXO set in transaction order, checks that each input references an available
-output of the same value, and checks that non-reward transactions preserve
-value. It also verifies block heights, parent links, proof of work, and that
+UTXO set in transaction order, verifies transaction identifiers, checks that
+each input references an available output of the same value, and checks that
+non-reward transactions preserve value. It also verifies block heights, parent links, proof of work, and that
 each stored confirmed transaction is referenced by a block. Pending transfers
 are replayed after the confirmed UTXOs, so a queued double-spend is reported
 before the miner writes it to a block.
@@ -72,7 +72,7 @@ Nodes may expose a small XML-RPC server and exchange a submitted block or pendin
 ## Deliberate limitations and next steps
 
 - Private keys are not stored and there are no signatures: add elliptic-curve keys and signature verification.
-- Transaction and block validation is not complete: verify inputs, values, hashes, reward limits, and parent links before storage.
+- Validation occurs during inspection and mining rather than before every JSON write: add validation gates for all storage paths.
 - JSON files are not safe for simultaneous writers: use SQLite or an append-only log with file locking.
 - The difficulty is fixed: add cumulative-work chain selection and periodic retargeting.
 - XML-RPC peers are trusted: add authenticated P2P messages and a peer protocol.
