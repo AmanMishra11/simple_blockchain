@@ -22,7 +22,7 @@ def _is_positive_integer(value):
     return isinstance(value, int) and not isinstance(value, bool) and value > 0
 
 
-def apply_transaction(transaction, available, allow_reward=False):
+def apply_transaction(transaction, available, allow_reward=False, known_output_ids=None):
     """Check one transaction and return errors while updating available UTXOs.
 
     `available` maps output ids to output records.  Updating it as each valid
@@ -42,7 +42,7 @@ def apply_transaction(transaction, available, allow_reward=False):
     elif tx_id != digest((transaction["created_at"], inputs, outputs)):
         _error(errors, f"transaction {tx_id}: identifier does not match its contents")
 
-    output_total = 0
+    output_total, output_ids = 0, set()
     new_outputs = []
     for index, output in enumerate(outputs):
         if not isinstance(output, dict) or not output.get("recipient"):
@@ -51,9 +51,17 @@ def apply_transaction(transaction, available, allow_reward=False):
         if not _is_positive_integer(output.get("amount")):
             _error(errors, f"transaction {tx_id}: output {index} has an invalid amount")
             continue
-        if not output.get("output_id"):
+        output_id = output.get("output_id")
+        if not output_id:
             _error(errors, f"transaction {tx_id}: output {index} needs an output_id")
             continue
+        if output_id in output_ids:
+            _error(errors, f"transaction {tx_id}: output {index} duplicates an output_id in this transaction")
+            continue
+        if known_output_ids is not None and output_id in known_output_ids:
+            _error(errors, f"transaction {tx_id}: output {index} reuses an existing output_id")
+            continue
+        output_ids.add(output_id)
         output_total += output["amount"]
         new_outputs.append(output)
 
@@ -88,22 +96,32 @@ def apply_transaction(transaction, available, allow_reward=False):
         available.pop(item["output_id"], None)
     for output in new_outputs:
         available[output["output_id"]] = output
+    if known_output_ids is not None:
+        known_output_ids.update(output_ids)
     return []
 
 
 def confirmed_utxos(transactions=None):
     """Return the confirmed UTXO set and any transaction-validation errors."""
-    available, errors = {}, []
+    available, errors, known_output_ids = {}, [], set()
     for transaction in transactions if transactions is not None else TransactionDB().read():
-        errors.extend(apply_transaction(transaction, available, allow_reward=True))
+        errors.extend(apply_transaction(transaction, available, allow_reward=True,
+                                        known_output_ids=known_output_ids))
     return available, errors
 
 
 def validate_pending_transactions(pending=None, transactions=None):
     """Ensure pending payments are individually sound and do not double-spend."""
+    transactions = TransactionDB().read() if transactions is None else transactions
     available, errors = confirmed_utxos(transactions)
+    known_output_ids = {
+        output.get("output_id")
+        for transaction in transactions if isinstance(transaction, dict)
+        for output in transaction.get("outputs", []) if isinstance(output, dict)
+        if output.get("output_id")
+    }
     for transaction in pending if pending is not None else UnTransactionDB().read():
-        errors.extend(apply_transaction(transaction, available))
+        errors.extend(apply_transaction(transaction, available, known_output_ids=known_output_ids))
     return errors
 
 
