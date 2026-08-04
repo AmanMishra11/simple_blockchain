@@ -114,6 +114,11 @@ def validate_pending_transactions(pending=None, transactions=None):
     """Ensure pending payments are individually sound and do not double-spend."""
     transactions = TransactionDB().read() if transactions is None else transactions
     available, errors = confirmed_utxos(transactions)
+    known_transaction_ids = {
+        transaction.get("tx_id")
+        for transaction in transactions if isinstance(transaction, dict)
+        if transaction.get("tx_id")
+    }
     known_output_ids = {
         output.get("output_id")
         for transaction in transactions if isinstance(transaction, dict)
@@ -121,6 +126,11 @@ def validate_pending_transactions(pending=None, transactions=None):
         if output.get("output_id")
     }
     for transaction in pending if pending is not None else UnTransactionDB().read():
+        tx_id = transaction.get("tx_id") if isinstance(transaction, dict) else None
+        if tx_id and tx_id in known_transaction_ids:
+            _error(errors, f"pending transaction {tx_id} duplicates an existing transaction")
+        elif tx_id:
+            known_transaction_ids.add(tx_id)
         errors.extend(apply_transaction(transaction, available, known_output_ids=known_output_ids))
     return errors
 
@@ -135,7 +145,16 @@ def validate_chain(chain=None, transactions=None):
     chain = BlockChainDB().read() if chain is None else chain
     transactions = TransactionDB().read() if transactions is None else transactions
     errors, previous_hash, included = [], "", set()
-    by_id = {item.get("tx_id"): item for item in transactions if isinstance(item, dict)}
+    by_id, known_transaction_ids = {}, set()
+    for transaction in transactions:
+        if not isinstance(transaction, dict):
+            continue
+        tx_id = transaction.get("tx_id")
+        if tx_id in known_transaction_ids:
+            _error(errors, f"transaction {tx_id}: identifier appears more than once")
+            continue
+        known_transaction_ids.add(tx_id)
+        by_id[tx_id] = transaction
 
     for expected_height, block in enumerate(chain):
         if not isinstance(block, dict):
