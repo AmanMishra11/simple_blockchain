@@ -16,9 +16,14 @@ def mine_once():
     account = current_account()
     if not account: raise RuntimeError("create an account before mining")
     chain, pending = BlockChainDB().read(), UnTransactionDB().read()
+    # Refuse to build on a broken history: otherwise a new valid-looking block
+    # could make a corrupted ledger appear to keep progressing.
+    from ledger import validate_chain, validate_pending_transactions
+    chain_errors = validate_chain(chain)
+    if chain_errors:
+        raise ValueError("cannot mine on an invalid chain: " + "; ".join(chain_errors))
     # Validate the whole pending sequence, so two queued payments cannot spend
     # the same confirmed output before either one is mined.
-    from ledger import validate_pending_transactions
     errors = validate_pending_transactions(pending)
     if errors:
         raise ValueError("cannot mine invalid pending transactions: " + "; ".join(errors))

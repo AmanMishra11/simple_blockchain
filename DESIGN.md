@@ -42,9 +42,10 @@ The parent hash makes a block depend on its predecessor. Changing an older block
 UTXO set in transaction order, verifies transaction identifiers, checks that
 each input references an available output of the same value, and checks that
 non-reward transactions preserve value. It also verifies block heights, parent links, proof of work, and that
-each stored confirmed transaction is referenced by a block. Pending transfers
-are replayed after the confirmed UTXOs, so a queued double-spend is reported
-before the miner writes it to a block.
+each stored confirmed transaction is referenced by a block. Mining runs the
+same chain check before adding a new block, so the demo will not extend a
+corrupted history. Pending transfers are replayed after the confirmed UTXOs,
+so a queued double-spend is reported before the miner writes it to a block.
 
 ## Explorer views
 
@@ -72,7 +73,7 @@ Nodes may expose a small XML-RPC server and exchange a submitted block or pendin
 ## Deliberate limitations and next steps
 
 - Private keys are not stored and there are no signatures: add elliptic-curve keys and signature verification.
-- Validation occurs during inspection and mining rather than before every JSON write: add validation gates for all storage paths.
+- Mining validates the existing chain and pending sequence, but JSON storage paths can still be edited or called directly: add validation gates for all writes.
 - JSON files are not safe for simultaneous writers: use SQLite or an append-only log with file locking.
 - The difficulty is fixed: add cumulative-work chain selection and periodic retargeting.
 - XML-RPC peers are trusted: add authenticated P2P messages and a peer protocol.
