@@ -44,7 +44,9 @@ each input references an available output of the same value, and checks that
 non-reward transactions preserve value. It also verifies block heights, parent links, proof of work, and that
 each stored confirmed transaction is referenced by a block. Mining runs the
 same chain check before adding a new block, so the demo will not extend a
-corrupted history. Pending transfers are replayed after the confirmed UTXOs,
+corrupted history. Every block must contain exactly one no-input reward
+transaction, making the fixed 20-coin issuance schedule visible during
+inspection. Pending transfers are replayed after the confirmed UTXOs,
 so a queued double-spend is reported before the miner writes it to a block.
 
 ## Explorer views

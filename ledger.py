@@ -171,12 +171,17 @@ def validate_chain(chain=None, transactions=None):
         calculated = _block_hash(block)
         if block["block_hash"] != calculated or not calculated.startswith(POW_PREFIX):
             _error(errors, f"block {expected_height}: proof of work is invalid")
+        reward_count = 0
         for tx_id in block["transaction_ids"]:
             if tx_id in included:
                 _error(errors, f"block {expected_height}: transaction {tx_id} appears more than once")
             elif tx_id not in by_id:
                 _error(errors, f"block {expected_height}: transaction {tx_id} is missing")
+            elif by_id[tx_id].get("inputs") == []:
+                reward_count += 1
             included.add(tx_id)
+        if reward_count != 1:
+            _error(errors, f"block {expected_height}: must include exactly one reward transaction")
         previous_hash = block.get("block_hash", previous_hash)
 
     _, transaction_errors = confirmed_utxos(transactions)
