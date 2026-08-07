@@ -22,6 +22,11 @@ def _is_positive_integer(value):
     return isinstance(value, int) and not isinstance(value, bool) and value > 0
 
 
+def _is_transaction_id(value):
+    """Keep malformed JSON IDs from breaking the read-only validator."""
+    return isinstance(value, str) and bool(value)
+
+
 def apply_transaction(transaction, available, allow_reward=False, known_output_ids=None):
     """Check one transaction and return errors while updating available UTXOs.
 
@@ -37,6 +42,8 @@ def apply_transaction(transaction, available, allow_reward=False, known_output_i
     inputs, outputs = transaction.get("inputs"), transaction.get("outputs")
     if not isinstance(inputs, list) or not isinstance(outputs, list) or not outputs:
         return [f"transaction {tx_id}: inputs and a non-empty outputs list are required"]
+    if not _is_transaction_id(tx_id):
+        _error(errors, f"transaction {tx_id}: identifier must be a non-empty string")
     if not isinstance(transaction.get("created_at"), int):
         _error(errors, f"transaction {tx_id}: created_at must be an integer timestamp")
     elif tx_id != digest((transaction["created_at"], inputs, outputs)):
@@ -115,9 +122,9 @@ def validate_pending_transactions(pending=None, transactions=None):
     transactions = TransactionDB().read() if transactions is None else transactions
     available, errors = confirmed_utxos(transactions)
     known_transaction_ids = {
-        transaction.get("tx_id")
+        transaction["tx_id"]
         for transaction in transactions if isinstance(transaction, dict)
-        if transaction.get("tx_id")
+        if _is_transaction_id(transaction.get("tx_id"))
     }
     known_output_ids = {
         output.get("output_id")
@@ -127,9 +134,9 @@ def validate_pending_transactions(pending=None, transactions=None):
     }
     for transaction in pending if pending is not None else UnTransactionDB().read():
         tx_id = transaction.get("tx_id") if isinstance(transaction, dict) else None
-        if tx_id and tx_id in known_transaction_ids:
+        if _is_transaction_id(tx_id) and tx_id in known_transaction_ids:
             _error(errors, f"pending transaction {tx_id} duplicates an existing transaction")
-        elif tx_id:
+        elif _is_transaction_id(tx_id):
             known_transaction_ids.add(tx_id)
         errors.extend(apply_transaction(transaction, available, known_output_ids=known_output_ids))
     return errors
@@ -150,6 +157,9 @@ def validate_chain(chain=None, transactions=None):
         if not isinstance(transaction, dict):
             continue
         tx_id = transaction.get("tx_id")
+        if not _is_transaction_id(tx_id):
+            _error(errors, f"transaction {tx_id}: identifier must be a non-empty string")
+            continue
         if tx_id in known_transaction_ids:
             _error(errors, f"transaction {tx_id}: identifier appears more than once")
             continue
@@ -173,6 +183,9 @@ def validate_chain(chain=None, transactions=None):
             _error(errors, f"block {expected_height}: proof of work is invalid")
         reward_count = 0
         for tx_id in block["transaction_ids"]:
+            if not _is_transaction_id(tx_id):
+                _error(errors, f"block {expected_height}: transaction identifier must be a non-empty string")
+                continue
             if tx_id in included:
                 _error(errors, f"block {expected_height}: transaction {tx_id} appears more than once")
             elif tx_id not in by_id:
